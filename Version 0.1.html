@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morse Code Straight Key Simulator</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+            text-align: center;
+            color: #0f172a;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        input[type="range"], select, input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            box-sizing: border-box;
+            background: white;
+        }
+
+        .value-display {
+            font-weight: normal;
+            float: right;
+            color: #64748b;
+        }
+
+        /* Straight Key Visual styling */
+        .key-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 180px;
+            background: #1e293b;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            position: relative;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .straight-key-visual {
+            width: 60px;
+            height: 60px;
+            background: #ef4444;
+            border-radius: 50%;
+            border: 4px solid #b91c1c;
+            box-shadow: 0 6px 0 #991b1b;
+            transition: all 0.05s ease;
+        }
+
+        .key-container.active .straight-key-visual {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #991b1b;
+            background: #dc2626;
+        }
+
+        .key-label {
+            color: #94a3b8;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        /* Displays */
+        .display-box {
+            background: #0f172a;
+            color: #38bdf8;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 1.4rem;
+            min-height: 35px;
+            word-wrap: break-word;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+
+        .translation-box {
+            color: #4ade80;
+        }
+
+        .metrics-panel {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .metric-card div:first-child {
+            color: #64748b;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .metric-card div:last-child {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #0f172a;
+            margin-top: 4px;
+        }
+
+        .instructions {
+            font-size: 0.85rem;
+            color: #64748b;
+            text-align: center;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Morse Code Straight Key</h1>
+
+    <div class="grid">
+        <div class="control-group">
+            <label for="config-key">Configured Key: <span class="instructions">(Click input & press key)</span></label>
+            <input type="text" id="config-key" value="Space" readonly style="text-align: center; font-weight: bold; cursor: pointer;">
+            
+            <div style="margin-top: 15px;">
+                <label for="wpm-standard">WPM Standard:</label>
+                <select id="wpm-standard">
+                    <option value="paris">PARIS (50 units/word)</option>
+                    <option value="codex">CODEX (60 units/word)</option>
+                </select>
+            </div>
+
+            <div style="margin-top: 15px;">
+                <label for="wpm-speed">Target Speed: <span class="value-display" id="wpm-val">20 WPM</span></label>
+                <input type="range" id="wpm-speed" min="5" max="50" value="20">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label for="frequency">Tone Frequency: <span class="value-display" id="freq-val">600 Hz</span></label>
+            <input type="range" id="frequency" min="300" max="1200" step="10" value="600">
+
+            <div style="margin-top: 15px;">
+                <label for="volume">Volume: <span class="value-display" id="vol-val">50%</span></label>
+                <input type="range" id="volume" min="0" max="100" value="50">
+            </div>
+            
+            <div style="margin-top: 15px; font-size: 0.8rem; color: #475569; line-height: 1.4;">
+                <strong>Ideal unit duration for chosen WPM:</strong><br>
+                Dot length: <span id="ideal-dot">-</span> ms<br>
+                Dash length: <span id="ideal-dash">-</span> ms
+            </div>
+        </div>
+    </div>
+
+    <div class="key-container" id="straight-key">
+        <div class="straight-key-visual"></div>
+        <div class="key-label" id="key-hint">Hold Spacebar to Key</div>
+    </div>
+
+    <label>Morse Symbols Output:</label>
+    <div class="display-box" id="morse-display"></div>
+
+    <label>English Translation:</label>
+    <div class="display-box translation-box" id="translation-display"></div>
+
+    <div class="metrics-panel">
+        <strong>Real-time Input Metrics (ms)</strong>
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div>Last Key-Down</div>
+                <div id="metric-down">0</div>
+            </div>
+            <div class="metric-card">
+                <div>Last Key-Up</div>
+                <div id="metric-up">0</div>
+            </div>
+            <div class="metric-card">
+                <div>Detected Element</div>
+                <div id="metric-type">None</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="instructions">
+        [Backspace] deletes last character | [Escape] clears everything.
+    </div>
+</div>
+
+<script>
+    // --- Audio System Setup ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let oscillator = null;
+    let gainNode = null;
+
+    function startTone() {
+        if (oscillator) return; // Already running
+        
+        oscillator = audioCtx.createOscillator();
+        gainNode = audioCtx.createGain();
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.value = parseInt(document.getElementById('frequency').value);
+        
+        const volume = parseInt(document.getElementById('volume').value) / 100;
+        // Anti-pop ramp
+        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(volume, audioCtx.currentTime + 0.005);
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.start();
+    }
+
+    function stopTone() {
+        if (!oscillator) return;
+        try {
+            gainNode.gain.setValueAtTime(gainNode.gain.value, audioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.005);
+            const currentOsc = oscillator;
+            setTimeout(() => currentOsc.stop(), 10);
+        } catch(e) {}
+        oscillator = null;
+        gainNode = null;
+    }
+
+    // --- Morse Code Map ---
+    const MORSE_DICTIONARY = {
+        '.-': 'A', '-...': 'B', '-.-.': 'C', '-..': 'D', '.': 'E', '..-.': 'F',
+        '--.': 'G', '....': 'H', '..': 'I', '.---': 'J', '-.-': 'K', '.-..': 'L',
+        '--': 'M', '-.': 'N', '---': 'O', '.--.': 'P', '--.-': 'Q', '.-.': 'R',
+        '...': 'S', '-': 'T', '..-': 'U', '...-': 'V', '.--': 'W', '-..-': 'X',
+        '-.--': 'Y', '--..': 'Z', '-----': '0', '.----': '1', '..---': '2',
+        '...--': '3', '....-': '4', '.....': '5', '-....': '6', '--...': '7',
+        '---..': '8', '----.': '9', '.-.-.-': '.', '--..--': ',', '..--..': '?',
+        '-..-.': '/', '-....-': '-', '-...-': '='
+    };
+    // Reverse lookup for reference if needed
+    const REVERSE_DICTIONARY = Object.fromEntries(Object.entries(MORSE_DICTIONARY).map(([k, v]) => [v, k]));
+
+    // --- State Variables ---
+    let activeKey = " "; // Default is Spacebar
+    let activeKeyCode = "Space";
+    let isKeyPressed = false;
+    
+    let keyDownTime = 0;
+    let keyUpTime = 0;
+    
+    let currentWordMorse = "";  // Tracks dots/dashes of current processing letter: e.g. ".-"
+    let fullMorseSequence = []; // Array of letters/spaces representing total text state
+    
+    // Timers for tracking character and word boundaries dynamically
+    let letterTimeout = null;
+    let wordTimeout = null;
+
+    // --- DOM Elements ---
+    const keyContainer = document.getElementById('straight-key');
+    const keyHint = document.getElementById('key-hint');
+    const configKeyInput = document.getElementById('config-key');
+    const morseDisplay = document.getElementById('morse-display');
+    const translationDisplay = document.getElementById('translation-display');
+    
+    const metricDown = document.getElementById('metric-down');
+    const metricUp = document.getElementById('metric-up');
+    const metricType = document.getElementById('metric-type');
+
+    // --- Timing Parameters Calculation (WPM) ---
+    let unitDuration = 60; // ms per single dot unit
+
+    function calculateWpmTimings() {
+        const wpm = parseInt(document.getElementById('wpm-speed').value);
+        const standard = document.getElementById('wpm-standard').value;
+        
+        // PARIS standard: 1 Word = 50 units. WPM calculation: Unit (ms) = 1200 / WPM
+        // CODEX standard: 1 Word = 60 units. WPM calculation: Unit (ms) = 1000 / WPM
+        if (standard === 'paris') {
+            unitDuration = 1200 / wpm;
+        } else {
+            unitDuration = 1000 / wpm;
+        }
+
+        document.getElementById('ideal-dot').textContent = Math.round(unitDuration);
+        document.getElementById('ideal-dash').textContent = Math.round(unitDuration * 3);
+    }
+
+    // --- Translation engine ---
+    function render() {
+        // Render Morse line
+        // Join the buffer with spaces, appending the active letter-in-progress to the end
+        let currentString = fullMorseSequence.join(' ');
+        if (currentWordMorse) {
+            currentString += (currentString ? ' ' : '') + currentWordMorse;
+        }
+        morseDisplay.textContent = currentString || '\u00A0';
+
+        // Render English line
+        let englishTranslation = "";
+        let elements = [...fullMorseSequence];
+        if (currentWordMorse) {
+            elements.push(currentWordMorse);
+        }
+
+        elements.forEach(token => {
+            if (token === '/') {
+                englishTranslation += ' ';
+            } else {
+                englishTranslation += MORSE_DICTIONARY[token] || '?';
+            }
+        });
+        
+        translationDisplay.textContent = englishTranslation || '\u00A0';
+    }
+
+    function processLetterEnd() {
+        if (currentWordMorse) {
+            fullMorseSequence.push(currentWordMorse);
+            currentWordMorse = "";
+            render();
+        }
+    }
+
+    function processWordEnd() {
+        processLetterEnd();
+        // Avoid double word spacing
+        if (fullMorseSequence.length > 0 && fullMorseSequence[fullMorseSequence.length - 1] !== '/') {
+            fullMorseSequence.push('/');
+            render();
+        }
+    }
+
+    // --- Input Key Logic ---
+    function handleKeyDown() {
+        if (isKeyPressed) return;
+        isKeyPressed = true;
+        
+        audioCtx.resume(); // Browser policy compliance
+        startTone();
+        keyContainer.classList.add('active');
+
+        clearTimeout(letterTimeout);
+        clearTimeout(wordTimeout);
+
+        const now = performance.now();
+        if (keyUpTime > 0) {
+            const upDuration = Math.round(now - keyUpTime);
+            metricUp.textContent = upDuration;
+        }
+        keyDownTime = now;
+    }
+
+    function handleKeyUp() {
+        if (!isKeyPressed) return;
+        isKeyPressed = false;
+        
+        stopTone();
+        keyContainer.classList.remove('active');
+
+        const now = performance.now();
+        const downDuration = Math.round(now - keyDownTime);
+        keyUpTime = now;
+        
+        metricDown.textContent = downDuration;
+
+        // Interpret symbol based on configured speeds
+        // Standard threshold is halfway between dot (1 unit) and dash (3 units) -> 2 units
+        const threshold = unitDuration * 2;
+        let symbol = "";
+        
+        if (downDuration < threshold) {
+            symbol = ".";
+            metricType.textContent = `Dot (.)`;
+        } else {
+            symbol = "-";
+            metricType.textContent = `Dash (-)`;
+        }
+
+        currentWordMorse += symbol;
+        render();
+
+        // Schedule breaks for spacing elements
+        // Letter break standard: 3 units. Word break standard: 7 units.
+        letterTimeout = setTimeout(processLetterEnd, unitDuration * 3);
+        wordTimeout = setTimeout(processWordEnd, unitDuration * 7);
+    }
+
+    // --- Key Configuration Handlers ---
+    configKeyInput.addEventListener('click', () => {
+        configKeyInput.value = "Press any key...";
+        configKeyInput.style.background = "#fee2e2";
+        
+        const captureKey = (e) => {
+            e.preventDefault();
+            activeKey = e.key;
+            activeKeyCode = e.code;
+            
+            // Format nice human-readable display values
+            let displayValue = e.code;
+            if(e.code === 'Space') displayValue = 'Spacebar';
+            
+            configKeyInput.value = displayValue;
+            configKeyInput.style.background = "white";
+            keyHint.textContent = `Hold ${displayValue} to Key`;
+            
+            window.removeEventListener('keydown', captureKey);
+        };
+        // Use capture phase to intercept immediately
+        window.addEventListener('keydown', captureKey, { once: true });
+    });
+
+    // --- Global Window Keyboard Hooks ---
+    window.addEventListener('keydown', (e) => {
+        // Global functional escape keys mapping
+        if (e.key === 'Backspace') {
+            e.preventDefault();
+            // Delete logic
+            if (currentWordMorse) {
+                currentWordMorse = currentWordMorse.slice(0, -1);
+            } else if (fullMorseSequence.length > 0) {
+                let popped = fullMorseSequence.pop();
+                // If it was a space divider, also pop the character before it for user comfort
+                if(popped === '/' && fullMorseSequence.length > 0) {
+                    fullMorseSequence.pop();
+                }
+            }
+            render();
+            return;
+        }
+        
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            currentWordMorse = "";
+            fullMorseSequence = [];
+            metricDown.textContent = '0';
+            metricUp.textContent = '0';
+            metricType.textContent = 'Cleared';
+            render();
+            return;
+        }
+
+        // Morse key activation parsing
+        if (e.code === activeKeyCode || e.key === activeKey) {
+            // Prevent default scroll/actions if using space or common characters
+            if(e.code === 'Space' || e.key === 'Backspace') e.preventDefault();
+            handleKeyDown();
+        }
+    });
+
+    window.addEventListener('keyup', (e) => {
+        if (e.code === activeKeyCode || e.key === activeKey) {
+            handleKeyUp();
+        }
+    });
+
+    // --- Mouse & Touch Backwards Compatibility for the Visual Key ---
+    keyContainer.addEventListener('mousedown', (e) => { e.preventDefault(); handleKeyDown(); });
+    window.addEventListener('mouseup', () => { handleKeyUp(); });
+    keyContainer.addEventListener('touchstart', (e) => { e.preventDefault(); handleKeyDown(); }, {passive: false});
+    window.addEventListener('touchend', () => { handleKeyUp(); });
+
+    // --- UI Control Adjustment Listeners ---
+    document.getElementById('wpm-speed').addEventListener('input', (e) => {
+        document.getElementById('wpm-val').textContent = e.target.value + " WPM";
+        calculateWpmTimings();
+    });
+
+    document.getElementById('wpm-standard').addEventListener('change', calculateWpmTimings);
+    
+    document.getElementById('frequency').addEventListener('input', (e) => {
+        document.getElementById('freq-val').textContent = e.target.value + " Hz";
+    });
+
+    document.getElementById('volume').addEventListener('input', (e) => {
+        document.getElementById('vol-val').textContent = e.target.value + "%";
+    });
+
+    // Run Initialization
+    calculateWpmTimings();
+</script>
+
+</body>
+</html>
