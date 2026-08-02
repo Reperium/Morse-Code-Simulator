@@ -12,9 +12,9 @@
 
 [FigmaInterface/Prototype](https://www.figma.com/design/6LZveNoewl4CwfvIkai4Yy/Morse-Code?node-id=0-1&t=7jPWGRvZy7lyZdF2-1)
 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
-# Morse Code Straight Key Simulator
+# Morse Code Simulator
 
-A browser-based Morse code simulator replicating a mechanical straight key. Self-contained single HTML file — no build step, no dependencies, no server. Open the file and it works offline.
+A static browser Morse code simulator replicating a mechanical straight key. It is a self-contained single HTML file that doesn't require dependencies or an internet connection.
 
 ## Core Function
 
