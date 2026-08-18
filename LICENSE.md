@@ -2,7 +2,7 @@
 
 <https://polyformproject.org/licenses/noncommercial/1.0.0>
 
-> Required Notice: Copyright 2026 Leyang Dong | Morse Code Simulator: https://reperium.github.io/Morse-Code-Simulator
+> Required Notice: Copyright 2026 PolyForm Noncommercial License 1.0.0 Leyang Dong | Morse Code Simulator: https://reperium.github.io/Morse-Code-Simulator
 
 ## Acceptance
 
