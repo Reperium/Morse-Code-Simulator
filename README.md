@@ -8,7 +8,7 @@
 [Version 1.6](https://reperium.github.io/Morse-Code-Simulator/Previous%20Versions/Version%201.6.html)
 [Version 1.7](https://reperium.github.io/Morse-Code-Simulator/Previous%20Versions/Version%201.7.html)
 [Version 1.8](https://reperium.github.io/Morse-Code-Simulator/Previous%20Versions/Version%201.8.html)
-[Version 2.0](https://reperium.github.io/Morse-Code-Simulator/Previous%20Versions/Version%202.0.html)
+[Version 2.0](https://reperium.github.io/Morse-Code-Simulator/Version%202.0.html)
 
 [Figma Interface/Prototype](https://www.figma.com/design/6LZveNoewl4CwfvIkai4Yy/Morse-Code?node-id=0-1&t=7jPWGRvZy7lyZdF2-1)
 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
